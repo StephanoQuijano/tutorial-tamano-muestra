@@ -1,6 +1,6 @@
 ---
 title: "Cálculo de tamaño de muestra en R"
-subtitle: "Tutorial práctico con el paquete `pwr` para investigación en salud"
+subtitle: "Tutorial práctico con los paquetes `pwr` y `pwr2`"
 author: "Stephano Miguel Quijano Signori"
 date: today
 lang: es
@@ -76,6 +76,7 @@ El punto crítico es el tamaño del efecto. No lo inventes: sácalo de la litera
 | Tres o más medias, medias conocidas | ANOVA de una vía | `power.anova.test()` | varianzas |
 | Asociación entre dos variables numéricas | correlación | `pwr.r.test()` | $r$ |
 | Asociación entre dos variables categóricas | chi cuadrado | `pwr.chisq.test()` | $w$ |
+| Dos factores a la vez (efectos principales) | ANOVA de dos vías | `pwr2::pwr.2way()` | $f_A$, $f_B$ |
 | Estimar una proporción con precisión dada | encuesta | fórmula clásica | precisión $d$ |
 
 # Preparación del entorno
@@ -85,9 +86,26 @@ El punto crítico es el tamaño del efecto. No lo inventes: sácalo de la litera
 ```{r}
 #| label: instalar
 #| eval: false
-install.packages("pwr")    # cálculos de poder con los efectos de Cohen
-install.packages("pwr2")   # ANOVA de dos vías
+install.packages("pwr")    # cálculos de poder con los tamaños de efecto de Cohen
+install.packages("pwr2")   # ANOVA de una y dos vías
 ```
+
+::: {.callout-warning}
+## `pwr2` fue archivado en CRAN
+
+`install.packages("pwr2")` devuelve el aviso *"package 'pwr2' is not available for this
+version of R"*. El paquete sigue disponible en el archivo histórico de CRAN y, como está
+escrito solo en R, se instala sin necesidad de Rtools:
+
+```r
+install.packages(
+  "https://cran.r-project.org/src/contrib/Archive/pwr2/pwr2_1.0.tar.gz",
+  repos = NULL, type = "source"
+)
+```
+
+Se ejecuta una sola vez. Después `library(pwr2)` funciona con normalidad.
+:::
 
 ## Cargar los paquetes
 
@@ -427,7 +445,42 @@ Se requieren **108 observaciones en total** (aquí `N` sí es el total, no por g
 pwr.chisq.test(w = 0.30, df = 2, N = 200, sig.level = 0.05)
 ```
 
-# Escenario 10: encuestas para estimar una proporción
+# Escenario 10: dos factores a la vez (ANOVA de dos vías)
+
+## El problema
+
+Hasta aquí todos los diseños tenían un solo factor. Un ANOVA de dos vías permite evaluar **dos factores simultáneamente** y, de paso, su interacción. Un estudio evalúa la adherencia a un tratamiento según el **tipo de consejería** (factor A, 2 niveles) y la **modalidad de entrega del medicamento** (factor B, 2 niveles). Se planea reclutar **40 participantes por grupo**, y se espera un efecto mediano para A ($f_A = 0.25$) y uno grande para B ($f_B = 0.55$).
+
+Este es el escenario donde entra `pwr2`, porque `pwr` solo cubre el ANOVA de una vía.
+
+## Paso 1: poder de cada efecto principal
+
+```{r}
+#| label: e10-power
+pwr.2way(a = 2, b = 2, alpha = 0.05,
+         size.A = 40, size.B = 40,
+         f.A = 0.25, f.B = 0.55)
+```
+
+Con 40 por grupo, el poder para detectar el efecto del factor A es de aproximadamente **0.88** y el del factor B es prácticamente **1.00**.
+
+## Paso 2: tamaño de muestra necesario
+
+```{r}
+#| label: e10-n
+ss.2way(a = 2, b = 2, alpha = 0.05, beta = 0.20,
+        f.A = 0.25, f.B = 0.55,
+        delta.A = NULL, delta.B = NULL,
+        sigma.A = NULL, sigma.B = NULL, B = 40)
+```
+
+Para un poder de 80% se necesitan alrededor de **32 participantes por grupo** por el factor A, y solo **8 por grupo** por el factor B.
+
+::: {.callout-important}
+Con dos factores, el tamaño de muestra lo manda siempre el **efecto más pequeño** que quieras detectar, en este caso el factor A. Y ojo con algo: estos cálculos cubren únicamente los efectos principales. Detectar una **interacción** del mismo tamaño exige bastante más muestra, típicamente alrededor de cuatro veces más, porque la interacción se estima como una diferencia de diferencias y su error estándar es mayor.
+:::
+
+# Escenario 11: encuestas para estimar una proporción
 
 Este caso no es de contraste de hipótesis sino de **estimación con una precisión deseada**, y es el más común en encuestas de salud pública. La lógica cambia: ya no hay poder, hay margen de error.
 
@@ -546,7 +599,7 @@ Los elementos que no pueden faltar: la hipótesis, el efecto y de dónde salió,
 
 - Champely S. *pwr: Basic Functions for Power Analysis*. R package. <https://CRAN.R-project.org/package=pwr>
 - Cohen J. *Statistical Power Analysis for the Behavioral Sciences*. 2a ed. Lawrence Erlbaum, 1988.
-- Lu Q, Luo X, Chen S. *pwr2: Power and Sample Size Analysis for One-way and Two-way ANOVA Models*. R package.
+- Lu Q, Luo X, Chen S. *pwr2: Power and Sample Size Analysis for One-way and Two-way ANOVA Models*. R package (archivado en CRAN).
 - Schulz KF, Altman DG, Moher D. CONSORT 2010 Statement. *BMJ*. 2010;340:c332.
 - Hoenig JM, Heisey DM. The abuse of power: the pervasive fallacy of power calculations for data analysis. *The American Statistician*. 2001;55(1):19-24.
 
