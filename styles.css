@@ -1,0 +1,94 @@
+/* Ajustes visuales del tutorial de tamaño de muestra */
+
+:root {
+  --azul: #1F4E79;
+}
+
+body {
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+/* Título de la portada */
+#title-block-header .title {
+  color: var(--azul);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+#title-block-header .subtitle {
+  color: #5b6b7c;
+  font-weight: 400;
+}
+
+/* Encabezados de sección */
+h1, h2 {
+  color: var(--azul);
+  border-bottom: 1px solid #e3e9ef;
+  padding-bottom: .3rem;
+  margin-top: 2.2rem;
+}
+
+h3, h4 {
+  color: #2c6ba0;
+  margin-top: 1.6rem;
+}
+
+/* Índice lateral */
+#TOC, nav[role="doc-toc"] {
+  font-size: .9rem;
+}
+
+/* Bloques de código y salidas */
+pre {
+  border-radius: 6px;
+  border: 1px solid #e3e9ef;
+}
+
+pre.sourceCode {
+  background-color: #f8fafc;
+}
+
+div.cell-output pre {
+  background-color: #fbfbfb;
+  border-left: 3px solid var(--azul);
+  font-size: .88rem;
+}
+
+/* Tablas */
+table {
+  font-size: .95rem;
+}
+
+thead th {
+  background-color: #f2f6fa;
+  color: var(--azul);
+}
+
+/* Callouts un poco más compactos */
+div.callout {
+  margin: 1.1rem 0;
+}
+
+/* Modo oscuro */
+body.quarto-dark h1,
+body.quarto-dark h2 {
+  color: #8ec5f0;
+  border-bottom-color: #33414f;
+}
+
+body.quarto-dark h3,
+body.quarto-dark h4 {
+  color: #a8d3f2;
+}
+
+body.quarto-dark pre.sourceCode,
+body.quarto-dark div.cell-output pre {
+  background-color: #1e242b;
+  border-color: #33414f;
+}
+
+body.quarto-dark thead th {
+  background-color: #232b33;
+  color: #8ec5f0;
+}
